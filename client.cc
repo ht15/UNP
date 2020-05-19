@@ -8,10 +8,17 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/shm.h>
+#include <errno.h>
+#include "mysignal.hpp"
  
 #define MYPORT 2727
 #define BUFFER_SIZE 1024
  
+
+void sig_pipe(int signo){
+    printf("signo: %d, EPIPE: %d\n", signo, EPIPE);
+}
+
 int main()
 {
     int c_fd = socket(AF_INET,SOCK_STREAM, 0);
@@ -44,10 +51,17 @@ int main()
     
     char sendbuf[BUFFER_SIZE];
     char recvbuf[BUFFER_SIZE];
+
+    mySignal(SIGPIPE, sig_pipe); // 服务端进程终止，第一次写返回RST，第二次产生SIGPIPE信号，EPIPE错误
     
-    while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
+    while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL) // 当服务端主动关闭时，客户端阻塞于文件描述符；当输入字符时，服务器会发送一个RST,因为收到了FIN，recv返回0.
     {/*每次读取一行，读取的数据保存在buf指向的字符数组中，成功，则返回第一个参数buf；*/
-        send(c_fd, sendbuf, strlen(sendbuf),0); ///发送
+        if(send(c_fd, sendbuf, strlen(sendbuf),0)<0){ ///发送
+            if(errno == EPIPE) {
+                printf("get error Broken pipe\n");
+                exit(1);
+            }
+        }
         if(strcmp(sendbuf,"exit\n")==0)
             break;
         recv(c_fd, recvbuf, sizeof(recvbuf),0); ///接收
