@@ -157,7 +157,7 @@ void do_echo(int conn) {
         if(strcmp(buffer, "exit\n") == 0)
         {
             break;
-        } else if(len == 0) { // 对端close，会产生read事件，但是读到的数据为零
+        } else if(len == 0) { // 对端close，并非是会产生read事件!!! 而是此时tcp处于半关闭状态， 己方收到了FIN，对端关闭了写，所以己方认为没有数据可读了，所以立马返回0
             printf("get close info, will exit\n");
             break;
         }

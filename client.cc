@@ -54,7 +54,7 @@ int main()
 
     mySignal(SIGPIPE, sig_pipe); // 服务端进程终止，第一次写返回RST，第二次产生SIGPIPE信号，EPIPE错误
     
-    while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL) // 当服务端主动关闭时，客户端阻塞于文件描述符；当输入字符时，服务器会发送一个RST,因为收到了FIN，recv返回0.
+    while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL) // 当服务端进程主动关闭时，客户端阻塞于文件描述符；当输入字符时，服务器会发送一个RST,因为收到了FIN，recv返回0.对发送RST信号的对端写，会产生SIGPIPE信号和EPIPE错误
     {/*每次读取一行，读取的数据保存在buf指向的字符数组中，成功，则返回第一个参数buf；*/
         if(send(c_fd, sendbuf, strlen(sendbuf),0)<0){ ///发送
             if(errno == EPIPE) {
