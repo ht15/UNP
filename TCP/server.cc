@@ -135,7 +135,11 @@ int main(int argc, const char* argv[]) {
         }
         if((child_pid=fork())==0){ // 子进程
             close(s_fd);//关闭监听套接字描述符
+            struct sockaddr_in sub_server_addr;
+            socklen_t sub_server_addr_len = sizeof(sub_server_addr);
             printf("accept from client:(%s,%d)\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+            getsockname(conn, (sockaddr*)&sub_server_addr, &sub_server_addr_len);
+            printf("conn addr is:(%s,%d)\n", inet_ntoa(sub_server_addr.sin_addr), ntohs(sub_server_addr.sin_port));
             do_echo(conn);
             exit(0);
         }
