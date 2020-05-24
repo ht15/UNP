@@ -101,6 +101,8 @@ int main(int argc, const char* argv[]) {
      * bind可以指定一个ip和port，或者指定其中一个，或者都不指定。客户端connect前一般不bind，服务端listen前一般先bind
      * 如果不bind一个指定port，connect或listen时内核要为相应套接字选择一个临时端口
      ***/
+    const int on=1;
+    setsockopt(s_fd, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
     if(bind(s_fd, (sockaddr*)&server_addr, sizeof(server_addr)) == -1){ 
         printf("bind error\n");
         exit(1);
