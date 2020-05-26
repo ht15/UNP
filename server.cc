@@ -10,6 +10,7 @@
 #endif
 #include <signal.h>
 #include <errno.h>
+#include<sys/wait.h>
 
 #define PORT 2727
 #define QUEUE_NUM 10
@@ -40,8 +41,10 @@ Sigfunc* mySignal(int signo, Sigfunc* func) { // 使用sigactin来实现signal.s
 void sig_chld(int signo){
     pid_t pid;
     int stat;
-    wait(&stat);
-    printf("child %d terminated\n", pid);
+    while((pid = waitpid(-1, &stat, WNOHANG)) > 0){
+	printf("child %d terminated\n", pid);
+    	printf("stat is: %d\n", stat);
+    }
 }
 
 
