@@ -12,9 +12,12 @@
 #include <errno.h>
 #include<sys/wait.h>
 #include "mysignal.hpp"
+#include <sys/un.h>
 
 #define PORT 2727
 #define QUEUE_NUM 10
+
+#define UNIX_PATH "/tmp/test_unix.sock"
 
 void do_echo(int);
 
@@ -65,7 +68,8 @@ int main(int argc, const char* argv[]) {
      *  IPPROTO_UDP(UDP传输协议）
      *  0(由协议族和socket类型确定的默认协议类型）
      ***/
-    int s_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // 使用IPPROTO_UDP时 创建socket会报错
+    //int s_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // 使用IPPROTO_UDP时 创建socket会报错
+    int s_fd = socket(AF_LOCAL, SOCK_STREAM, 0); // unix域套接字, 协议项需设为零
     if(s_fd == -1){
         printf("create socket error\n");
         exit(1);
@@ -88,15 +92,20 @@ int main(int argc, const char* argv[]) {
      *  }
      *所由API几乎都将通用套接字地址结构类型（或指针）作为参数，然后在函数通过协议族来转换成真实类型，所有在调用的时候要进行强制类型转换。（这一切都是为了接口重用）
      ***/
-    struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr)); // 一般先把一个套接字地址结构初始化为0
-    server_addr.sin_port = htons(PORT);
-    server_addr.sin_family = AF_INET;
+    //struct sockaddr_in server_addr;
+    //memset(&server_addr, 0, sizeof(server_addr)); // 一般先把一个套接字地址结构初始化为0
+    //server_addr.sin_port = htons(PORT);
+    //server_addr.sin_family = AF_INET;
     // server_addr.sin_addr.s_addr = inet_addr("127.0.0.1")已经废弃
-    if(inet_aton("127.0.0.1", &server_addr.sin_addr) == 0) {
-        printf("inet_aton error\n");
-        exit(1);
-    }
+    //if(inet_aton("127.0.0.1", &server_addr.sin_addr) == 0) {
+        //printf("inet_aton error\n");
+        //exit(1);
+    //}
+    struct sockaddr_un server_addr; // unix域套接字地址
+    memset(&server_addr, 0, sizeof(server_addr)); // 一般先把一个套接字地址结构初始化为0
+    server_addr.sun_family = AF_LOCAL;
+    unlink(UNIX_PATH);
+    strcpy(server_addr.sun_path, UNIX_PATH);
     /***
      * bind可以指定一个ip和port，或者指定其中一个，或者都不指定。客户端connect前一般不bind，服务端listen前一般先bind
      * 如果不bind一个指定port，connect或listen时内核要为相应套接字选择一个临时端口
