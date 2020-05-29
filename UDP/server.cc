@@ -26,6 +26,17 @@ int main(int argc, const char* argv[]) {
         printf("inet_aton error\n");
         exit(1);
     }
+    const int on= 1;
+    setsockopt(s_fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    int recv_size;
+    socklen_t recv_len = sizeof(recv_size);
+    getsockopt(s_fd, SOL_SOCKET, SO_RCVBUF, &recv_size, &recv_len);
+    printf("before set: %d\n", recv_size);
+    recv_size=10+8*2; // 不知为啥 一定要2倍的udp头部大小
+    int rl_recv_size;
+    setsockopt(s_fd, SOL_SOCKET, SO_RCVBUF, &recv_size, sizeof(recv_size));
+    getsockopt(s_fd, SOL_SOCKET, SO_RCVBUF, &rl_recv_size, &recv_len);
+    printf("after set: %d\n", recv_size);
     if (bind(s_fd, (sockaddr*)&server_addr, sizeof(server_addr))==-1) {
         printf("bind error\n");
         exit(1);
@@ -40,16 +51,16 @@ int main(int argc, const char* argv[]) {
 
 void do_echo(int sock_fd, struct sockaddr_in* c_addr, socklen_t len) {
     socklen_t s_len=len;
-    char buffer[1024];
+    char buffer[10];
     int n;
     while(1) {
         memset(buffer, 0, sizeof(buffer));
         
         n=recvfrom(sock_fd, buffer, sizeof(buffer), 0, (sockaddr*)c_addr, &s_len);
 
-        printf("recv from %s:%d\n", inet_ntoa(c_addr->sin_addr), ntohs(c_addr->sin_port));
+        printf("recv %d from %s:%d\n", n, inet_ntoa(c_addr->sin_addr), ntohs(c_addr->sin_port));
         printf("recv: %s\n", buffer);
 
-        sendto(sock_fd, buffer, sizeof(buffer), 0, (sockaddr*)c_addr, s_len);
+        sendto(sock_fd, buffer, sizeof(buffer), 0, (sockaddr*)c_addr, s_len); // 不同于TCP，不管有没有数据都会发送 sizeof(buffer)个数据
     }
 }
