@@ -186,7 +186,10 @@ void do_echo(int conn) {
             }
             int send_num = send(conn, buffer+ send_size, len , 0);//向TCP连接的另一端发送数据。
             if(send_num==-1){
-                continue;
+                if(errno == EWOULDBLOCK){
+                    printf("buffer lack\n");
+                    continue;
+                }
             }
             printf("send %d to client\n", send_num);
             send_size += send_num;
