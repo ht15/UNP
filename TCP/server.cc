@@ -198,6 +198,5 @@ void do_echo(int conn) {
             old_len = len;
         }
     }
-    printf("second git test\n")
     close(conn);//因为accpet函数连接成功后还会生成一个新的套接字描述符，结束后也需要关闭
 }
