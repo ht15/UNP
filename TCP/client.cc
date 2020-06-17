@@ -10,10 +10,12 @@
 #include <sys/shm.h>
 #include <errno.h>
 #include "mysignal.hpp"
+#include <sys/un.h>
  
 #define MYPORT 2727
 #define BUFFER_SIZE 1024
  
+#define UNIX_PATH "/tmp/test_unix.sock"
 
 void sig_pipe(int signo){
     printf("signo: %d, EPIPE: %d\n", signo, EPIPE);
@@ -21,20 +23,24 @@ void sig_pipe(int signo){
 
 int main()
 {
-    int c_fd = socket(AF_INET,SOCK_STREAM, 0);
+    int c_fd = socket(AF_LOCAL,SOCK_STREAM, 0);
     
-    struct sockaddr_in servaddr;
-    memset(&servaddr, 0, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(MYPORT); //服务器端口
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    struct sockaddr_in myaddr;
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    myaddr.sin_port = htons(37773);
+    //struct sockaddr_in servaddr;
+    //memset(&servaddr, 0, sizeof(servaddr));
+    //servaddr.sin_family = AF_INET;
+    //servaddr.sin_port = htons(MYPORT); //服务器端口
+    //servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    //struct sockaddr_in myaddr;
+    //memset(&myaddr, 0, sizeof(myaddr));
+    //myaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    //myaddr.sin_port = htons(37773);
     // 自己绑定指定地址，不由内核在connect时指定。bind两次以上同一个端口，除了第一次能bind到指定端口，后面都由内核分配一个临时端口.
-    bind(c_fd, (sockaddr *)&myaddr, sizeof(myaddr));
+    //bind(c_fd, (sockaddr *)&myaddr, sizeof(myaddr));
+
+    struct sockaddr_un servaddr;
+    servaddr.sun_family = AF_LOCAL;
+    strcpy(servaddr.sun_path, UNIX_PATH);
+
 
     if (connect(c_fd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
     {

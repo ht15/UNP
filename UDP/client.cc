@@ -23,12 +23,13 @@ int main(int argc, const char* argv[]) {
     inet_aton("127.0.0.1", &server_addr.sin_addr);
     socklen_t s_len = sizeof(server_addr);
 
-    char buffer[1024];
+    char buffer[10];
     int n;
     while(fgets(buffer, sizeof(buffer), stdin) != NULL) {
-        sendto(c_fd, buffer, sizeof(buffer), 0, (sockaddr*)&server_addr, s_len);
+        sendto(c_fd, buffer, sizeof(buffer), 0, (sockaddr*)&server_addr, s_len); // 不同于TCP，不同于有没有数据都会发送 sizeof(buffer)的数据
         memset(buffer, 0, sizeof(buffer));
         n=recvfrom(c_fd, buffer, sizeof(buffer), 0, NULL, NULL);
+        printf("recv %d\n", n);
         buffer[n]=0;
         fputs(buffer, stdout);
         memset(buffer, 0, sizeof(buffer));
