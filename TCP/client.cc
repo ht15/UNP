@@ -77,5 +77,6 @@ int main()
         memset(recvbuf, 0, sizeof(recvbuf));
     }
     close(c_fd);
+    printf("by clone\n")
     return 0;
 }
