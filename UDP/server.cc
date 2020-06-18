@@ -41,6 +41,7 @@ int main(int argc, const char* argv[]) {
         printf("bind error\n");
         exit(1);
     }
+    // 不需要listen
     struct sockaddr_in client_addr;
     socklen_t c_len = sizeof(client_addr);
     do_echo(s_fd, &client_addr, c_len);

@@ -1,0 +1,7 @@
+*log
+server
+client
+.DS_Store
+*info
+*out
+conn_client

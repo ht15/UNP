@@ -29,10 +29,10 @@ int main(int argc, const char* argv[]) {
     while(fgets(buffer, sizeof(buffer), stdin) != NULL) {
         //sendto(c_fd, buffer, sizeof(buffer), 0, (sockaddr*)&server_addr, s_len);
         //sendto(c_fd, buffer, sizeof(buffer), 0, NULL, 0);
-        send(c_fd, buffer, sizeof(buffer), 0);
+        write(c_fd, buffer, sizeof(buffer));
         memset(buffer, 0, sizeof(buffer));
         //n=recvfrom(c_fd, buffer, sizeof(buffer), 0, NULL, NULL);
-        n=recv(c_fd, buffer, sizeof(buffer), 0);
+        n=read(c_fd, buffer, sizeof(buffer));
         buffer[n]=0;
         fputs(buffer, stdout);
         memset(buffer, 0, sizeof(buffer));

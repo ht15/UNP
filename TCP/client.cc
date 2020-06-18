@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <sys/shm.h>
+#include <sys/shm.h> 
 #include <errno.h>
 #include "mysignal.hpp"
 #include <sys/un.h>
@@ -16,10 +16,14 @@
 #define BUFFER_SIZE 1024
  
 #define UNIX_PATH "/tmp/test_unix.sock"
-
 void sig_pipe(int signo){
     printf("signo: %d, EPIPE: %d\n", signo, EPIPE);
 }
+
+class Test {
+public:
+    int age;
+};
 
 int main()
 {
@@ -62,6 +66,10 @@ int main()
     
     while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL) // 当服务端进程主动关闭时，客户端阻塞于文件描述符；当输入字符时，服务器会发送一个RST,因为收到了FIN，recv返回0.对发送RST信号的对端写，会产生SIGPIPE信号和EPIPE错误
     {/*每次读取一行，读取的数据保存在buf指向的字符数组中，成功，则返回第一个参数buf；*/
+        memset(sendbuf, 0, sizeof(sendbuf));//接受或者发送完毕后把数组中的数据全部清空（置0）
+        Test t;
+        t.age = 19;
+        memcpy(sendbuf, (char*)&t, sizeof(t));
         if(send(c_fd, sendbuf, strlen(sendbuf),0)<0){ ///发送
             if(errno == EPIPE) {
                 printf("get error Broken pipe\n");
@@ -71,6 +79,8 @@ int main()
         if(strcmp(sendbuf,"exit\n")==0)
             break;
         recv(c_fd, recvbuf, sizeof(recvbuf),0); ///接收
+        Test *pt = (Test*)recvbuf;
+        printf("recv echo at age: %d\n", pt->age);
         fputs(recvbuf, stdout);
     
         memset(sendbuf, 0, sizeof(sendbuf));//接受或者发送完毕后把数组中的数据全部清空（置0）

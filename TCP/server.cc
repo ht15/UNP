@@ -131,7 +131,7 @@ int main(int argc, const char* argv[]) {
             socklen_t  buf_send_len;
             getsockopt(conn, SOL_SOCKET, SO_SNDBUF, &dest_size, &buf_send_len);
             printf("send buff length before set: %d\n", dest_size);
-            dest_size = 5;
+            dest_size = 50;
             setsockopt(conn, SOL_SOCKET, SO_SNDBUF, &dest_size, sizeof(dest_size));
             getsockopt(conn, SOL_SOCKET, SO_SNDBUF, &dest_size, &buf_send_len);
             printf("send buff length after set: %d\n", dest_size);
@@ -152,6 +152,11 @@ int main(int argc, const char* argv[]) {
     }
     return 0;
 }
+
+class Test {
+public:
+    int age;
+};
 
 void do_echo(int conn) {
     if(conn == -1){
@@ -178,6 +183,8 @@ void do_echo(int conn) {
         if(len>0){
             printf("%s\n", buffer);//如果有收到数据则输出数据
             printf("get info len from client: %d\n", len);
+            Test *t = (Test*)buffer;
+            printf("get Test at age: %d\n", t->age);
         }
         send_size=0;
         while(len > 0){

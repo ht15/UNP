@@ -26,7 +26,7 @@ int main(int argc, const char* argv[]) {
     char buffer[10];
     int n;
     while(fgets(buffer, sizeof(buffer), stdin) != NULL) {
-        sendto(c_fd, buffer, sizeof(buffer), 0, (sockaddr*)&server_addr, s_len); // 不同于TCP，不同于有没有数据都会发送 sizeof(buffer)的数据
+        sendto(c_fd, buffer, sizeof(buffer), 0, (sockaddr*)&server_addr, s_len); // 不同于TCP, 有没有数据都会发送 sizeof(buffer)的数据
         memset(buffer, 0, sizeof(buffer));
         n=recvfrom(c_fd, buffer, sizeof(buffer), 0, NULL, NULL);
         printf("recv %d\n", n);
