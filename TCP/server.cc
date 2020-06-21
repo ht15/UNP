@@ -199,5 +199,6 @@ void do_echo(int conn) {
         }
     }
     printf("add at test_2\n");
+    printf("add 2 at test_2\n");
     close(conn);//因为accpet函数连接成功后还会生成一个新的套接字描述符，结束后也需要关闭
 }
