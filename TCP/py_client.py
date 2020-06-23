@@ -30,7 +30,7 @@ while True:
     data=tcpCliSock.recv(BUFSIZE)
     if not data:
         break
-    print type(data)
+    print len(data)
     print type(data)
 
 tcpCliSock.close()
